@@ -52,11 +52,11 @@ describe("NFTMarketplace", function () {
       const sellerAmount = PRICE - feeAmount;
 
       // Cek saldo virtual Seller di contract
-      const sellerBalance = await marketplace.read.balances([seller.account.address]);
+      const sellerBalance = await marketplace.read.proceeds([seller.account.address]);
       expect(sellerBalance).to.equal(sellerAmount);
 
       // Cek saldo virtual Owner (Kamu) di contract
-      const ownerBalance = await marketplace.read.balances([owner.account.address]);
+      const ownerBalance = await marketplace.read.proceeds([owner.account.address]);
       expect(ownerBalance).to.equal(feeAmount);
 
         // Seller withdraw proceeds
@@ -70,7 +70,6 @@ describe("NFTMarketplace", function () {
       // ignore gas fee for simplicity
       const balanceAfter = await publicClient.getBalance({ address: seller.account.address });
       expect(balanceAfter > balanceBefore).to.be.true;
-      
       console.log("Full Cycle Trade Success");
     });
   });

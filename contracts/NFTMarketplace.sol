@@ -16,6 +16,7 @@ error FeeTooHigh();
 error PriceMustBeAboveZero();
 error CannotBuyOwnItem();
 error NotApprovedForMarketplace();
+error EmergencyWithdrawFailed();
 
 
 contract NFTMarketplace is ReentrancyGuard,Ownable {
@@ -23,7 +24,6 @@ contract NFTMarketplace is ReentrancyGuard,Ownable {
     uint256 price;
     address seller;
   }
-  uint256 public feePercent;
   mapping(address => mapping(uint256 => Listing)) public listings;
   mapping(address => uint256) public proceeds;
   uint256 public immutable feePercent;
@@ -41,7 +41,7 @@ contract NFTMarketplace is ReentrancyGuard,Ownable {
     address indexed nftContract,
     uint256 indexed tokenId,
     address indexed seller
-  )
+  );
 
   // Events bought here
   event ItemBought(
@@ -57,6 +57,12 @@ contract NFTMarketplace is ReentrancyGuard,Ownable {
     uint256 amount
   );
 
+  event EmergencyWithdrawn(
+    address indexed nftContract,
+    uint256 indexed tokenId,
+    address indexed to
+  );
+
    // getter for feePercent Deployment
    constructor(uint256 _feePercent) Ownable (msg.sender) {
     if(_feePercent > 20) revert FeeTooHigh();
@@ -70,7 +76,7 @@ contract NFTMarketplace is ReentrancyGuard,Ownable {
       IERC721 nft = IERC721(_nftContract);
       if(nft.ownerOf(_tokenId) != msg.sender) revert NotOwner();
       if(!nft.isApprovedForAll(msg.sender,address(this))) revert NotApprovedForMarketplace();
-      listings[_nftContract][_tokenId] = Listing(_price,msg.sender,true);
+      listings[_nftContract][_tokenId] = Listing(_price,msg.sender);
       emit ItemListed(_nftContract,_tokenId,_price,msg.sender);
       nft.transferFrom(msg.sender,address(this),_tokenId);
    }
@@ -111,6 +117,19 @@ contract NFTMarketplace is ReentrancyGuard,Ownable {
     (bool success, ) = payable(msg.sender).call{value: amount}("");
     require(success, "Transfer failed");
     emit ProceedsWithdrawn(msg.sender, amount);
+  }
+  
+  /**
+ * @dev Emergency function untuk rescue NFT yang terjebak di kontrak ini.
+ * Hanya bisa dipanggil oleh owner sebagai last resort
+ */
+  function EmergencyWithdrawNft(address _nftContract, uint256 _tokenId, address _to ) external onlyOwner nonReentrant {
+    delete(listings[_nftContract][_tokenId]);
+    try IERC721 (_nftContract).transferFrom(address(this),_to,_tokenId) {
+      emit EmergencyWithdrawn(_nftContract,_tokenId,_to);
+    }catch {
+      revert EmergencyWithdrawFailed();
+    }
   }
 }
 
