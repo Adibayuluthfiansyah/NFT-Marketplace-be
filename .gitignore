@@ -1,5 +1,18 @@
 node_modules
+
+# Environment variables - NEVER commit these!
 .env
+.env.local
+.env.production
+.env.*.local
+
+# Sensitive files - CRITICAL SECURITY
+secrets.json
+*.key
+*.pem
+mnemonic.txt
+private-keys.txt
+.secret
 
 # Hardhat files
 /cache
@@ -15,3 +28,16 @@ node_modules
 
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
+
+# Deployment artifacts (may contain sensitive data)
+deployments/mainnet/
+deployments/production/
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
