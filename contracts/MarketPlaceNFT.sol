@@ -18,7 +18,7 @@ contract MarketPlaceNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
      * @param _tokenURI Format: "ipfs://QmXYZ..." (Fixed: sesuaikan dengan nama parameter)
      * @param mediaType Tipe media: "image", "audio", atau "video"
      */
-    function createToken(string memory _tokenURI, string memory mediaType) public returns (uint256) {
+    function createToken(string memory _tokenURI, string memory mediaType) public onlyOwner returns (uint256) {
         uint256 tokenId = _nextTokenId++;
         _mint(msg.sender, tokenId);
         _setTokenURI(tokenId, _tokenURI);
