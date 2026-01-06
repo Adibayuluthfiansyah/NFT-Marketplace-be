@@ -41,3 +41,8 @@ deployments/production/
 *~
 .DS_Store
 Thumbs.db
+
+DEPLOYED_ADDRESSES.md
+deployed-addresses.json
+DEPLOYMENT_GUIDE.md
+hardhat-node.log
